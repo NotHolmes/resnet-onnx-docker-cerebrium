@@ -11,13 +11,8 @@ from src.model import OnnxModel
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(
-    prefix="/v1",
-    responses={200: {"model": {}}},
-)
 
-
-class PredictRequest(BaseModel):
+class PredictionRequest(BaseModel):
     """Request model for prediction endpoint."""
 
     image: str  # base64-encoded image
@@ -28,7 +23,7 @@ class PredictRequest(BaseModel):
         schema_extra = {"example": {"image": "iVBORw0KGgoAAAANSUhEUgAA..."}}
 
 
-class PredictResponse(BaseModel):
+class PredictionResponse(BaseModel):
     """Response model for prediction endpoint."""
 
     predicted_class: str
@@ -45,16 +40,19 @@ class PredictResponse(BaseModel):
         }
 
 
-@router.post("/predict", response_model=PredictResponse)
-async def predict(input_data: PredictRequest, request: Request) -> PredictResponse:
+router = APIRouter(prefix="/v1", responses={200: {"model": PredictionResponse, "description": "Successful prediction"}})
+
+
+@router.post("/predict", response_model=PredictionResponse)
+async def predict(input_data: PredictionRequest, request: Request) -> PredictionResponse:
     """Predict the class of an image.
 
     Args:
-        input_data (PredictRequest): The request data containing the base64-encoded image.
+        input_data (PredictionRequest): The request body containing the base64-encoded image.
         request (Request): The FastAPI request object, used to access app state.
 
     Returns:
-        PredictResponse: The predicted class and class ID.
+        PredictionResponse: The predicted class and class ID.
     """
     # Decode the base64 image
     try:
@@ -76,4 +74,4 @@ async def predict(input_data: PredictRequest, request: Request) -> PredictRespon
     predicted_class_id = model.predict_index(image)
     predicted_class = CLASS_LABELS[predicted_class_id]
 
-    return PredictResponse(predicted_class=predicted_class, predicted_class_id=predicted_class_id)
+    return PredictionResponse(predicted_class=predicted_class, predicted_class_id=predicted_class_id)
