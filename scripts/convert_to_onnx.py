@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src.pytorch_model import BasicBlock, Classifier  # adjust the import path to where Classifier is defined
+from scripts.pytorch_model import BasicBlock, Classifier  # adjust the import path to where Classifier is defined
 
 
 class PreprocessingWrapper(nn.Module):
