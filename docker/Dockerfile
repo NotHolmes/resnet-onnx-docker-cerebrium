@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION="3.10.14"
+ARG PYTHON_VERSION="3.10"
 
 FROM python:${PYTHON_VERSION}-slim-bullseye AS base
 
@@ -19,15 +19,21 @@ RUN poetry install --no-dev --no-cache && \
     poetry run pip cache purge && \
     rm -rf ~/.cache/pypoetry/artifacts
 
+COPY weights/ weights/
+COPY scripts/ scripts/
+RUN poetry run python -m scripts.convert_to_onnx
 
-FROM python:3.10-slim-bullseye AS final
+FROM python:${PYTHON_VERSION}-slim-bullseye AS final
 
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION
 WORKDIR /root
 
 COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /root/models /root/models
 
 COPY src/ src/
 
-CMD ["python", "-m", "src.pytorch_model"]
+EXPOSE 8000
+
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--workers", "1", "--log-level", "info"]

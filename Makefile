@@ -1,6 +1,14 @@
 all_dirs := src
 
-.PHONY: build run clean-pyc clean format lint
+.PHONY: build run clean-pyc clean format lint deploy
+
+install-pipx:
+	sudo apt update
+	sudo apt install pipx
+	pipx ensurepath
+
+install-poetry: install-pipx
+	pipx install poetry==1.8.3
 
 build:
 	docker compose -f docker/docker-compose.yml build
@@ -22,3 +30,7 @@ format:
 
 lint:
 	poetry run ruff check $(all_dirs) --fix
+
+deploy: clean
+	poetry export --without-hashes --format=requirements.txt --output=requirements.txt
+	poetry run cerebrium deploy --config-file cerebrium.toml

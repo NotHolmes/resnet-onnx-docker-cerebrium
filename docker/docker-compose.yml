@@ -6,3 +6,5 @@ services:
       dockerfile: docker/Dockerfile
     volumes:
       - ../src:/root/src
+    ports:
+        - 8000:8000
