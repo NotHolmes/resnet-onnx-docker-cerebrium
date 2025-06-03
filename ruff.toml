@@ -82,6 +82,7 @@ ignore = [
     "RUF012", # https://docs.astral.sh/ruff/rules/mutable-class-default/
     "TC001", # https://docs.astral.sh/ruff/rules/type-checking-decorator/
     "S101", # https://docs.astral.sh/ruff/rules/assert/
+    "PTH123", # https://docs.astral.sh/ruff/rules/use-pathlib/
 ]
 
 pydocstyle.convention = "google"
