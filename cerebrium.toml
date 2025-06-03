@@ -17,7 +17,7 @@ dockerfile_path = "docker/Dockerfile"
 
 [cerebrium.scaling]
 min_replicas = 0
-max_replicas = 1
+max_replicas = 2
 cooldown = 30
 replica_concurrency = 1
 response_grace_period = 900
