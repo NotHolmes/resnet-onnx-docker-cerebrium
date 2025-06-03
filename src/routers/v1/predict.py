@@ -20,7 +20,7 @@ class PredictionRequest(BaseModel):
     class Config:
         """Pydantic configuration."""
 
-        schema_extra = {"example": {"image": "iVBORw0KGgoAAAANSUhEUgAA..."}}
+        json_schema_extra = {"example": {"image": "iVBORw0KGgoAAAANSUhEUgAA..."}}
 
 
 class PredictionResponse(BaseModel):
@@ -32,7 +32,7 @@ class PredictionResponse(BaseModel):
     class Config:
         """Pydantic configuration."""
 
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "predicted_class": "mud turtle",
                 "predicted_class_id": 35,
