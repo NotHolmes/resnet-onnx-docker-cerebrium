@@ -13,10 +13,10 @@ install-poetry: install-pipx
 	pipx install poetry==1.8.3
 
 build:
-	docker compose -f docker/docker-compose.yml build
+	docker compose -f docker/docker-compose.yaml build
 
 run: build
-	docker compose -f docker/docker-compose.yml up
+	docker compose -f docker/docker-compose.yaml up
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} + || true
