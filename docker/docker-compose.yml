@@ -1,0 +1,8 @@
+services:
+  api_core:
+    image: mtailor-assesment:dev
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ../src:/root/src
