@@ -312,10 +312,10 @@ class Classifier(nn.Module):
 
 if __name__ == "__main__":
     mtailor = Classifier(BasicBlock, [2, 2, 2, 2])
-    mtailor.load_state_dict(torch.load("./resnet18-f37072fd.pth"))
+    mtailor.load_state_dict(torch.load("weights/pytorch_model_weights.pth"))
     mtailor.eval()
     
-    img = Image.open("./n01667114_mud_turtle.JPEG")
+    img = Image.open("images/n01667114_mud_turtle.JPEG")
     inp = mtailor.preprocess_numpy(img).unsqueeze(0) 
     res = mtailor.forward(inp)
 
