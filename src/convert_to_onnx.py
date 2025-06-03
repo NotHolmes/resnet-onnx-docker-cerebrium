@@ -1,6 +1,35 @@
 import torch
+from torch import nn
 
 from src.pytorch_model import BasicBlock, Classifier  # adjust the import path to where Classifier is defined
+
+
+class PreprocessingWrapper(nn.Module):
+    """Wrapper to preprocess input tensors before passing them to the model."""
+
+    def __init__(self, model: nn.Module) -> None:
+        super().__init__()
+        self.model = model
+        # Normalization constants
+        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+        self.std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Preprocess the input tensor before passing it to the model."""
+        # Convert to float and scale to [0, 1] (divide by 255)
+        if x.dtype == torch.uint8:
+            x = x.float() / 255.0  # Divide by 255
+        elif x.max() > 1.0:
+            x = x / 255.0  # Divide by 255 if not already
+
+        # If input is NHWC, convert to NCHW (RGB format)
+        if x.shape[-1] == 3:  # Convert to RGB format if needed
+            x = x.permute(0, 3, 1, 2)
+
+        # Normalize using mean and std for each channel (RGB)
+        x = (x - self.mean.to(x.device)) / self.std.to(x.device)  # Subtract mean and divide std per channel
+        return self.model(x)
+
 
 # Re-create the trained model according to pytorch_model.py
 model = Classifier(BasicBlock, [2, 2, 2, 2])
@@ -8,14 +37,24 @@ state_dict = torch.load("weights/pytorch_model_weights.pth", map_location="cpu")
 model.load_state_dict(state_dict)
 model.eval()
 
+# Wrap with preprocessing
+wrapped_model = PreprocessingWrapper(model)
+wrapped_model.eval()
+
 # Prepare a dummy input tensor
-dummy_input = torch.randn(1, 3, 224, 224)
+dummy_input = torch.randint(0, 256, (1, 224, 224, 3), dtype=torch.uint8)
+
+output_path = "models/model.onnx"
 
 # Export to ONNX
 torch.onnx.export(
-    model,  # model to export
+    wrapped_model,  # model to export
     dummy_input,  # example input
-    "models/model.onnx",  # where to save the ONNX file
+    output_path,  # where to save the ONNX file
+    input_names=["input"],
+    output_names=["output"],
+    dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}},
+    opset_version=13,
 )
 
-print("ONNX export complete: model.onnx")  # noqa
+print(f"ONNX export complete: {output_path}")
