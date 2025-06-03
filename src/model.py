@@ -32,11 +32,10 @@ class OnnxModel:
         outputs = self.session.run([self.output_name], {self.input_name: input_tensor})
         return outputs[0]
 
-    def predict_label(self, img: Image.Image) -> str:
-        """Run prediction and return the predicted class label as a string."""
+    def predict_index(self, img: Image.Image) -> int:
+        """Predict the class index for a given image."""
         output = self.predict(img)
-        pred_idx = int(np.argmax(output))
-        return CLASS_LABELS[pred_idx] if pred_idx < len(CLASS_LABELS) else "Unknown"
+        return np.argmax(output, axis=1)[0]
 
 
 if __name__ == "__main__":
@@ -45,5 +44,5 @@ if __name__ == "__main__":
 
     img = Image.open(img_path)
     model = OnnxModel(model_path)
-    output = model.predict_label(img)
-    print(f"Predicted class: {output}")
+    output = model.predict_index(img)
+    print(f"Predicted: {CLASS_LABELS[output]} (index {output})")
