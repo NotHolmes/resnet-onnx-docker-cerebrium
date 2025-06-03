@@ -1,4 +1,6 @@
-all_dirs := src
+src_dir = src
+test_dir = tests
+all_dirs = $(src_dir) $(test_dir)
 
 .PHONY: build run clean-pyc clean format lint deploy
 
@@ -30,6 +32,9 @@ format:
 
 lint:
 	poetry run ruff check $(all_dirs) --fix
+
+test: format lint
+	poetry run python -m tests.test
 
 deploy: clean
 	poetry export --without-hashes --format=requirements.txt --output=requirements.txt

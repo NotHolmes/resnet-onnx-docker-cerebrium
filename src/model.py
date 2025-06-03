@@ -35,7 +35,7 @@ class OnnxModel:
     def predict_index(self, img: Image.Image) -> int:
         """Predict the class index for a given image."""
         output = self.predict(img)
-        return np.argmax(output, axis=1)[0]
+        return int(np.argmax(output, axis=1)[0])
 
 
 if __name__ == "__main__":
