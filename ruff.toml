@@ -79,6 +79,8 @@ ignore = [
     # Custom
     "T201", # https://docs.astral.sh/ruff/rules/print-statements/
     "E501", # https://docs.astral.sh/ruff/rules/line-too-long/
+    "RUF012", # https://docs.astral.sh/ruff/rules/mutable-class-default/
+    "TC001", # https://docs.astral.sh/ruff/rules/type-checking-decorator/
 ]
 
 pydocstyle.convention = "google"
