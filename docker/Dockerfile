@@ -6,7 +6,7 @@ ARG POETRY_VERSION="1.8.3"
 WORKDIR /root
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y build-essential git python3-pip && \
+    apt-get install --no-install-recommends -y build-essential git python3-pip libglib2.0-0 libgl1-mesa-glx && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir --upgrade pip==24.* setuptools==70.* wheel==0.43.* && \

@@ -9,6 +9,9 @@ from torchvision import transforms
 
 from PIL import Image
 
+import cv2
+
+import numpy as np
 
 def conv3x3(
     in_planes: int,
@@ -308,6 +311,30 @@ class Classifier(nn.Module):
         img = normalize(img)
         return img
 
+    def preprocess_opencv(self, img):
+        if hasattr(img, 'convert'):  # PIL Image
+            img = cv2.cvtColor(np.array(img.convert('RGB')), cv2.COLOR_RGB2BGR)
+        
+        if len(img.shape) == 3 and img.shape[2] == 3:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        
+        img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_LINEAR)
+        
+        h, w = img.shape[:2]
+        start_h = (h - 224) // 2
+        start_w = (w - 224) // 2
+        img = img[start_h:start_h+224, start_w:start_w+224]
+        img = img.astype(np.float32) / 255.0
+        
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+        
+        img = (img - mean.reshape(1, 1, 3)) / std.reshape(1, 1, 3)
+        img = np.transpose(img, (2, 0, 1))
+
+        return img
+
+
 
 if __name__ == "__main__":
     mtailor = Classifier(BasicBlock, [2, 2, 2, 2])
@@ -316,6 +343,12 @@ if __name__ == "__main__":
     
     img = Image.open("images/n01667114_mud_turtle.JPEG")
     inp = mtailor.preprocess_numpy(img).unsqueeze(0) 
+
+    inp_opencv = mtailor.preprocess_opencv(img).astype(np.float32)
+    inp_opencv = torch.from_numpy(inp_opencv).unsqueeze(0)
+    
     res = mtailor.forward(inp)
+    res_opencv = mtailor.forward(inp_opencv)
 
     print(torch.argmax(res))
+    print(torch.argmax(res_opencv))
