@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """
     model_path = Path(__file__).parent.parent / "models" / "model.onnx"
     model_path = str(model_path.resolve())
-    app.state.model = OnnxModel(model_path)
+    app.state.model = OnnxModel(model_path, True)
     yield
 
 

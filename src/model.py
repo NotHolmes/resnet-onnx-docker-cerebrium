@@ -12,11 +12,16 @@ ALPHA_CHANNELS = 4
 class OnnxModel:
     """ONNX model wrapper for loading and making predictions from PIL images."""
 
-    def __init__(self, model_path: str) -> None:
+    def __init__(self, model_path: str, use_gpu: bool = None) -> None:
         self.model_path = model_path
-        self.session = ort.InferenceSession(model_path)
+        if use_gpu:
+            self.session = ort.InferenceSession(model_path, providers=["CUDAExecutionProvider"])
+        else:
+            self.session = ort.InferenceSession(model_path)
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
+
+        ort.print_debug_info()
 
     @staticmethod
     def preprocess(img: Image.Image) -> np.ndarray:
